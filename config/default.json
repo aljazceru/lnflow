@@ -1,0 +1,22 @@
+{
+  "api": {
+    "base_url": "http://localhost:18081",
+    "timeout": 30,
+    "max_retries": 3,
+    "retry_delay": 1.0
+  },
+  "optimization": {
+    "min_fee_rate": 1,
+    "max_fee_rate": 15000,
+    "high_flow_threshold": 10000000,
+    "low_flow_threshold": 1000000,
+    "high_balance_threshold": 0.8,
+    "low_balance_threshold": 0.2,
+    "fee_increase_factor": 1.5,
+    "flow_preservation_weight": 0.6,
+    "min_fee_change_ppm": 5,
+    "min_earnings_improvement": 100
+  },
+  "verbose": false,
+  "dry_run": true
+}

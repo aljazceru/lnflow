@@ -1,0 +1,133 @@
+# Lightning Fee Optimizer - Git Ignore Rules
+
+# Third-party embedded repositories (handled separately)
+charge-lnd-original/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments (CRITICAL - these are huge)
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Data & Experimental Results (potentially sensitive)
+data/
+data_samples/
+experiment_data/
+*.db
+*.sqlite*
+
+# Log Files
+logs/
+*.log
+experiment.log
+policy.log
+
+# Generated Files & Reports
+*_details.json
+*_analysis.csv  
+*_recommendations.json
+channel_analysis.csv
+channel_details_sample.json
+channel2_details.json
+final_recommendations.json
+test_recommendations.json
+essential_commands.txt
+inbound_fee_quick_reference.txt
+
+# IDE & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.vim/
+.netrwhist
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+*.conf.local
+config.local.*
+*.key
+*.pem
+admin.macaroon*
+charge-lnd.macaroon*
+
+# Temporary Files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Jupyter Notebooks (if any)
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# Testing
+.coverage
+.pytest_cache/
+.tox/
+htmlcov/
+
+# Node.js (if used for tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Lightning Network Specific
+# Actual channel/node data (keep examples)
+**/channels/*.json
+**/nodes/*.json
+open_channels.json
+summary.txt
+synced_status.json
+block_height.txt
+
+# Executables & Symlinks (review manually)
+lightning-fee-optimizer
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Documentation build artifacts (if using Sphinx, etc.)
+docs/_build/
+docs/.doctrees/
