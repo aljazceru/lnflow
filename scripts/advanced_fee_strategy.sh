@@ -16,7 +16,7 @@
 
 set -e
 
-echo "⚡ Lightning Fee Optimizer - Advanced Inbound Fee Strategy"
+echo "Lightning Fee Optimizer - Advanced Inbound Fee Strategy"
 echo "========================================================="
 echo ""
 echo "This strategy uses BOTH outbound and inbound fees for optimal liquidity management:"
@@ -26,7 +26,7 @@ echo ""
 
 read -p "Have you added 'accept-positive-inbound-fees=true' to lnd.conf? (yes/no): " inbound_ready
 if [[ $inbound_ready != "yes" ]]; then
-    echo "⚠️  Please add 'accept-positive-inbound-fees=true' to lnd.conf and restart LND first"
+    echo "WARNING: Please add 'accept-positive-inbound-fees=true' to lnd.conf and restart LND first"
     echo "This enables positive inbound fees for advanced liquidity management"
     exit 1
 fi
@@ -74,12 +74,12 @@ update_channel_advanced() {
     # Uncomment to execute:
     # eval $cmd
     
-    echo "✅ Advanced policy prepared (not executed)"
+    echo "Advanced policy prepared (not executed)"
     echo ""
 }
 
 echo ""
-echo "🛡️  DRAIN PROTECTION STRATEGY"
+echo "DRAIN PROTECTION STRATEGY"
 echo "Protect high-earning channels from being drained by setting inbound fees"
 echo ""
 
@@ -102,7 +102,7 @@ update_channel_advanced "900023x1554x0" 22 -15 0 "Channel has 99.9% local balanc
 update_channel_advanced "903561x1516x0" 72 -25 0 "Overly balanced channel - encourage some inbound flow" "LIQUIDITY_ATTRACTION"
 
 echo ""
-echo "⚖️  BALANCED OPTIMIZATION STRATEGY"
+echo "BALANCED OPTIMIZATION STRATEGY"
 echo "Fine-tune both inbound and outbound fees on high-performing channels"
 echo ""
 
@@ -114,7 +114,7 @@ update_channel_advanced "890401x1900x1" 11 5 0 "Strong performer - minimal inbou
 update_channel_advanced "721508x1824x1" 11 5 0 "Excellent flow - minimal inbound adjustment" "BALANCED_OPTIMIZATION"
 
 echo ""
-echo "🔄 FLOW OPTIMIZATION STRATEGY"
+echo "FLOW OPTIMIZATION STRATEGY"
 echo "Optimize bidirectional flow with asymmetric fee strategies"
 echo ""
 
@@ -125,7 +125,7 @@ update_channel_advanced "904664x2249x4" 104 10 0 "Well balanced - small inbound 
 update_channel_advanced "903294x1253x1" 102 10 0 "Good balance - small inbound fee to preserve" "FLOW_OPTIMIZATION"
 
 echo ""
-echo "🚀 ACTIVATION STRATEGY"
+echo "ACTIVATION STRATEGY"
 echo "Use aggressive inbound discounts to activate dormant channels"
 echo ""
 
@@ -135,7 +135,7 @@ update_channel_advanced "691153x813x1" 7 -30 0 "Low activity - large inbound dis
 update_channel_advanced "896882x554x1" 49 -40 0 "Underused channel - significant inbound discount" "ACTIVATION"
 
 echo ""
-echo "📊 MONITORING COMMANDS FOR INBOUND FEES"
+echo "MONITORING COMMANDS FOR INBOUND FEES"
 echo "════════════════════════════════════════"
 echo ""
 
@@ -155,10 +155,10 @@ echo "# Track forwarding events with fee breakdown:"
 echo "lncli fwdinghistory --max_events 20 | jq '.forwarding_events[] | {chan_id_in, chan_id_out, fee_msat, amt_msat}'"
 
 echo ""
-echo "⚡ INBOUND FEE STRATEGY EXPLANATION"
+echo "INBOUND FEE STRATEGY EXPLANATION"
 echo "══════════════════════════════════════"
 echo ""
-echo "🛡️  DRAIN PROTECTION: Positive inbound fees (50-150 ppm)"
+echo "DRAIN PROTECTION: Positive inbound fees (50-150 ppm)"
 echo "   • Discourages peers from pushing all their funds through you"
 echo "   • Compensates you for the liquidity service"
 echo "   • Protects your most valuable routing channels"
@@ -168,16 +168,16 @@ echo "   • Provides discounts to encourage inbound payments"
 echo "   • Helps rebalance channels with too much local liquidity"
 echo "   • Backwards compatible (older nodes see it as regular discount)"
 echo ""
-echo "⚖️  BALANCED OPTIMIZATION: Small positive inbound fees (5-25 ppm)"
+echo "BALANCED OPTIMIZATION: Small positive inbound fees (5-25 ppm)"
 echo "   • Fine-tunes flow on high-performing channels"
 echo "   • Prevents over-utilization in one direction"
 echo "   • Maximizes total fee income"
 echo ""
-echo "🔄 FLOW OPTIMIZATION: Mixed strategy based on current balance"
+echo "FLOW OPTIMIZATION: Mixed strategy based on current balance"
 echo "   • Asymmetric fees to encourage bidirectional flow" 
 echo "   • Dynamic based on current liquidity distribution"
 echo ""
-echo "🚀 ACTIVATION: Aggressive negative inbound fees (-30 to -50 ppm)"
+echo "ACTIVATION: Aggressive negative inbound fees (-30 to -50 ppm)"
 echo "   • Last resort for dormant channels"
 echo "   • Makes your channels very attractive for routing"
 echo "   • Higher risk but potential for activation"
@@ -194,7 +194,7 @@ echo ""
 echo "Total estimated additional benefit: +10,000-20,000 sats/month"
 
 echo ""
-echo "⚠️  IMPLEMENTATION NOTES"
+echo "IMPLEMENTATION NOTES"
 echo "════════════════════════════"
 echo ""
 echo "1. COMPATIBILITY: Inbound fees require updated nodes"
@@ -204,7 +204,7 @@ echo "4. GRADUAL: Apply inbound fee strategy gradually over 2-3 weeks"
 echo "5. BALANCE: Keep total fees (inbound + outbound) reasonable"
 
 echo ""
-echo "🔧 ROLLBACK COMMANDS (inbound fees back to 0)"
+echo "ROLLBACK COMMANDS (inbound fees back to 0)"
 echo "═══════════════════════════════════════════════"
 echo ""
 echo "# Remove all inbound fees (set to 0):"
@@ -221,5 +221,5 @@ echo "3. Uncomment the 'eval \$cmd' line"
 echo "4. Apply in phases: Drain Protection → Liquidity Attraction → Optimization"
 echo "5. Monitor routing success rates closely"
 echo ""
-echo "📈 This advanced strategy should increase your monthly revenue by 35-40% total"
+echo "This advanced strategy should increase your monthly revenue by 35-40% total"
 echo "   (24.6% from outbound optimization + 10-15% from inbound fee management)"

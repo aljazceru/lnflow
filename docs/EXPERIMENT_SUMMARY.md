@@ -2,7 +2,7 @@
 
 ## What We Built
 
-### 🧪 **Controlled Experimental Framework**
+### **Controlled Experimental Framework**
 - **Hypothesis Testing**: 5 specific testable hypotheses about Lightning fee optimization
 - **Scientific Method**: Control groups, randomized assignment, statistical analysis  
 - **Risk Management**: Automatic rollbacks, safety limits, real-time monitoring
@@ -16,7 +16,7 @@
 4. **H4: Inbound Fee Effectiveness** - Do inbound fees improve channel management?
 5. **H5: Time-Based Patterns** - Are there optimal times for fee adjustments?
 
-### 🛠️ **Technical Implementation**
+### **Technical Implementation**
 
 #### **Advanced Algorithms**
 - **Game Theory Integration**: Nash equilibrium considerations for competitive markets

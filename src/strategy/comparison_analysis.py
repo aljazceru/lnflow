@@ -30,7 +30,7 @@ class OptimizationComparison:
         console.print("[cyan]Running optimization comparison...[/cyan]")
         
         # Run simple optimization
-        console.print("📊 Running simple optimization...")
+        console.print("Running simple optimization...")
         simple_recommendations = self.simple_optimizer.optimize_fees(metrics)
         
         # Run advanced optimization  
@@ -129,11 +129,11 @@ Key Improvements:
   • Different fee strategies: {comparison['channels_with_different_recommendations']} channels
         """
         
-        console.print(Panel(summary_text.strip(), title="📊 Comparison Summary"))
+        console.print(Panel(summary_text.strip(), title="Comparison Summary"))
         
         # Detailed differences table
         if comparison['differences']:
-            console.print("\n[bold]🔍 Significant Strategy Differences[/bold]")
+            console.print("\n[bold]Significant Strategy Differences[/bold]")
             
             table = Table(show_header=True, header_style="bold magenta")
             table.add_column("Channel", width=16)
@@ -173,7 +173,7 @@ Key Improvements:
         if not advanced_recs or not hasattr(advanced_recs[0], 'risk_assessment'):
             return
         
-        console.print("\n[bold]⚠️ Risk Analysis (Advanced Only)[/bold]")
+        console.print("\n[bold]Risk Analysis (Advanced Only)[/bold]")
         
         # Risk distribution
         risk_levels = {'low': 0, 'medium': 0, 'high': 0}
@@ -210,7 +210,7 @@ Average Risk Score: {avg_risk:.2f} (0-1 scale)
         
         # Show high-risk recommendations
         if high_risk_channels:
-            console.print("\n[bold red]⚠️ High-Risk Recommendations[/bold red]")
+            console.print("\n[bold red]High-Risk Recommendations[/bold red]")
             
             table = Table(show_header=True)
             table.add_column("Channel")
@@ -232,7 +232,7 @@ Average Risk Score: {avg_risk:.2f} (0-1 scale)
     def _display_implementation_comparison(self, simple_recs, advanced_recs) -> None:
         """Compare implementation strategies"""
         
-        console.print("\n[bold]🚀 Implementation Strategy Comparison[/bold]")
+        console.print("\n[bold]Implementation Strategy Comparison[/bold]")
         
         # Simple approach
         simple_text = f"""
@@ -275,7 +275,7 @@ Average Risk Score: {avg_risk:.2f} (0-1 scale)
         console.print(columns)
         
         # Recommendation
-        console.print("\n[bold green]💡 Recommendation[/bold green]")
+        console.print("\n[bold green]Recommendation[/bold green]")
         if len(advanced_recs) > 0 and hasattr(advanced_recs[0], 'risk_assessment'):
             console.print("Use the Advanced Optimizer for:")
             console.print("• Higher total returns with risk management")

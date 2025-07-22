@@ -151,14 +151,14 @@ For each channel category, different optimization approaches:
 ```
 Lightning Fee Optimizer
 
-✅ Checking node connection...
+Checking node connection...
 📦 Current block height: 906504
 
-📊 Fetching channel data...
-🔗 Found 41 channels
+Fetching channel data...
+Found 41 channels
 
 🔬 Analyzing channel performance...
-✅ Successfully analyzed 41 channels
+Successfully analyzed 41 channels
 
 ╭────────────────────────────── Network Overview ──────────────────────────────╮
 │ Total Channels: 41                                                             │
@@ -176,7 +176,7 @@ High Performers: 8 channels
 │ 721508x1824x1 │ node_way_jose  │  87.5 │  9,561 │ 65.5M │
 └───────────────┴────────────────┴───────┴────────┴───────┘
 
-⚡ Generating fee optimization recommendations...
+Generating fee optimization recommendations...
 
 ╭────────────────────────── Fee Optimization Results ──────────────────────────╮
 │ Total Recommendations: 23                                                      │

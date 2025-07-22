@@ -15,8 +15,8 @@
 
 set -e  # Exit on any error
 
-echo "🔍 Lightning Fee Optimizer - Fee Update Script"
-echo "⚠️  WARNING: This will modify your channel fees!"
+echo "Lightning Fee Optimizer - Fee Update Script"
+echo "WARNING: This will modify your channel fees!"
 echo ""
 read -p "Are you sure you want to continue? (yes/no): " confirm
 
@@ -26,7 +26,7 @@ if [[ $confirm != "yes" ]]; then
 fi
 
 echo ""
-echo "📊 Applying fee recommendations..."
+echo "Applying fee recommendations..."
 echo "💾 Consider backing up current policies first:"
 echo "   lncli describegraph > channel_policies_backup.json"
 echo ""
@@ -76,7 +76,7 @@ update_channel_fee() {
     # Uncomment the next line to actually execute the command
     # eval $cmd
     
-    echo "✅ Command prepared (not executed - remove comments to apply)"
+    echo "Command prepared (not executed - remove comments to apply)"
     echo ""
 }
 
@@ -179,15 +179,15 @@ echo "lncli updatechanpolicy --chan_id 845867x2612x0 --fee_rate 100"
 echo "# ... (add more as needed)"
 
 echo ""
-echo "🎯 IMPLEMENTATION STRATEGY:"
+echo "IMPLEMENTATION STRATEGY:"
 echo "1. Start with HIGH PRIORITY recommendations (high confidence)"
 echo "2. Wait 24-48 hours and monitor routing activity"
 echo "3. Apply MEDIUM PRIORITY balance management changes gradually"
 echo "4. Monitor for 1 week before applying low activity changes"
 echo "5. Keep detailed logs of what you change and when"
 echo ""
-echo "⚠️  Remember: Channel fee changes take time to propagate through the network!"
-echo "📊 Monitor your earnings and routing activity after each change."
+echo "WARNING: Remember: Channel fee changes take time to propagate through the network!"
+echo "Monitor your earnings and routing activity after each change."
 echo ""
 echo "To execute this script and actually apply changes:"
 echo "1. Review each command carefully"

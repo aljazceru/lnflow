@@ -1,10 +1,10 @@
-# ⚡ gRPC Upgrade: Supercharged LND Integration
+# gRPC Upgrade: Supercharged LND Integration
 
-## 🚀 Why gRPC is Better Than REST
+## Why gRPC is Better Than REST
 
 Our implementation now uses **gRPC as the primary LND interface** (with REST fallback), matching charge-lnd's proven approach but with significant improvements.
 
-### 📊 Performance Comparison
+### Performance Comparison
 
 | Metric | REST API | gRPC API | Improvement |
 |--------|----------|----------|-------------|
@@ -15,7 +15,7 @@ Our implementation now uses **gRPC as the primary LND interface** (with REST fal
 | **Connection Pooling** | Manual | Built-in | **Automatic** |
 | **Error Handling** | HTTP status codes | Rich gRPC status | **More detailed** |
 
-### 🔧 Technical Advantages
+### Technical Advantages
 
 #### 1. **Native LND Interface**
 ```python
@@ -58,7 +58,7 @@ async with httpx.AsyncClient() as client:
     response2 = await client.post(url2, json=data2)  # New connection
 ```
 
-## 🛠️ Our Implementation
+## Our Implementation
 
 ### Smart Dual-Protocol Support
 ```python
@@ -95,7 +95,7 @@ await lnd_client.update_channel_policy(
 # Automatically uses the fastest available protocol
 ```
 
-## ⚡ Real-World Performance
+## Real-World Performance
 
 ### Large Node Scenario (100 channels)
 ```bash
@@ -123,7 +123,7 @@ time ./lightning_policy.py apply --prefer-grpc
 # Low latency, persistent connection
 ```
 
-## 🔧 Setup & Usage
+## Setup & Usage
 
 ### 1. Install gRPC Dependencies
 ```bash
@@ -155,31 +155,31 @@ time ./lightning_policy.py apply --prefer-grpc
 --macaroon-path ~/.lnd/data/chain/bitcoin/mainnet/admin.macaroon
 ```
 
-## 📈 Compatibility Matrix
+## Compatibility Matrix
 
 ### LND Versions
 | LND Version | gRPC Support | Inbound Fees | Our Support |
 |-------------|--------------|--------------|-------------|
-| 0.17.x | ✅ Full | ❌ No | ✅ Works (no inbound) |
-| 0.18.0+ | ✅ Full | ✅ Yes | ✅ **Full features** |
-| 0.19.0+ | ✅ Enhanced | ✅ Enhanced | ✅ **Optimal** |
+| 0.17.x | Full | No | Works (no inbound) |
+| 0.18.0+ | Full | Yes | **Full features** |
+| 0.19.0+ | Enhanced | Enhanced | **Optimal** |
 
 ### Protocol Fallback Chain
 1. **gRPC** (localhost:10009) - *Preferred*
 2. **REST** (https://localhost:8080) - *Fallback*
 3. **Error** - Both failed
 
-## 🎯 Migration from REST
+## Migration from REST
 
 ### Existing Users
 **No changes needed!** The system automatically detects and uses the best protocol.
 
 ### charge-lnd Users
 **Perfect compatibility!** We use the same gRPC approach as charge-lnd but with:
-- ✅ Advanced inbound fee strategies
-- ✅ Automatic rollback protection  
-- ✅ Machine learning optimization
-- ✅ Performance monitoring
+- Advanced inbound fee strategies
+- Automatic rollback protection  
+- Machine learning optimization
+- Performance monitoring
 
 ### Performance Testing
 ```bash
@@ -193,25 +193,25 @@ time ./lightning_policy.py apply --prefer-grpc
 ./lightning_policy.py --prefer-rest -c config.conf apply --dry-run
 ```
 
-## 🏆 Summary
+## Summary
 
-### ✅ Benefits Achieved
+### Benefits Achieved
 - **10x faster fee updates** via native gRPC
 - **5x less bandwidth** with binary protocols
 - **Better reliability** with connection pooling
 - **charge-lnd compatibility** using same gRPC approach
 - **Automatic fallback** ensures it always works
 
-### 🚀 Performance Gains
+### Performance Gains
 - **Large nodes**: 15+ seconds → 2-3 seconds
 - **Daemon mode**: 100ms → 10ms per cycle  
 - **Memory usage**: Reduced connection overhead
 - **Network efficiency**: Persistent connections
 
-### 🔧 Zero Migration Effort
+### Zero Migration Effort
 - **Existing configs work unchanged**
 - **Same CLI commands** 
 - **Automatic protocol detection**
 - **Graceful REST fallback**
 
-**Your Lightning Policy Manager is now supercharged with gRPC while maintaining full backward compatibility!** ⚡🚀
+**Your Lightning Policy Manager is now supercharged with gRPC while maintaining full backward compatibility!**

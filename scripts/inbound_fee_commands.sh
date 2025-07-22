@@ -12,7 +12,7 @@ echo "PREREQUISITE: Add to lnd.conf and restart LND:"
 echo "accept-positive-inbound-fees=true"
 echo ""
 
-echo "🛡️  PHASE 1: DRAIN PROTECTION (Apply first)"
+echo "PHASE 1: DRAIN PROTECTION (Apply first)"
 echo "Protect your most valuable channels from being drained"
 echo ""
 
@@ -23,7 +23,7 @@ echo "lncli updatechanpolicy --chan_id 691130x155x1 --fee_rate 282 --base_fee_ms
 echo "lncli updatechanpolicy --chan_id 903613x2575x1 --fee_rate 303 --base_fee_msat 0 --time_lock_delta 80 --inbound_fee_rate_ppm 100 --inbound_base_fee_msat 0  # Moderate protection"
 echo ""
 
-echo "⚡ PHASE 2: HIGH-PERFORMANCE OPTIMIZATION (Apply after 48h)"
+echo "PHASE 2: HIGH-PERFORMANCE OPTIMIZATION (Apply after 48h)"
 echo "Optimize your best channels with small inbound fees for balance"
 echo ""
 
@@ -46,7 +46,7 @@ echo "lncli updatechanpolicy --chan_id 900023x1554x0 --fee_rate 22 --base_fee_ms
 echo "lncli updatechanpolicy --chan_id 893297x1850x1 --fee_rate 23 --base_fee_msat 0 --time_lock_delta 80 --inbound_fee_rate_ppm -10 --inbound_base_fee_msat 0  # Too much local"
 echo ""
 
-echo "🚀 PHASE 4: DORMANT CHANNEL ACTIVATION (Apply after 2 weeks)"
+echo "PHASE 4: DORMANT CHANNEL ACTIVATION (Apply after 2 weeks)"
 echo "Aggressive inbound discounts to try activating unused channels"
 echo ""
 
@@ -56,7 +56,7 @@ echo "lncli updatechanpolicy --chan_id 691153x813x1 --fee_rate 7 --base_fee_msat
 echo "lncli updatechanpolicy --chan_id 896882x554x1 --fee_rate 49 --base_fee_msat 0 --time_lock_delta 80 --inbound_fee_rate_ppm -40 --inbound_base_fee_msat 0  # Low activity"
 echo ""
 
-echo "📊 MONITORING COMMANDS"
+echo "MONITORING COMMANDS"
 echo "═══════════════════════"
 echo ""
 
@@ -76,7 +76,7 @@ echo "# Check for routing failures (inbound fee related):"
 echo "lncli listpayments | jq '.payments[-10:] | .[] | select(.status==\"FAILED\") | {creation_date, failure_reason}'"
 
 echo ""
-echo "🎯 INBOUND FEE STRATEGY SUMMARY"
+echo "INBOUND FEE STRATEGY SUMMARY"
 echo "═══════════════════════════════"
 echo ""
 echo "POSITIVE INBOUND FEES (+5 to +150 ppm):"
@@ -109,7 +109,7 @@ echo "Original estimate was:          +24.6% (outbound only)"
 echo "Additional from inbound:        +10-20% (inbound optimization)"
 
 echo ""
-echo "⚠️  SAFETY CONSIDERATIONS"
+echo "SAFETY CONSIDERATIONS"
 echo "═════════════════════════"
 echo ""
 echo "1. COMPATIBILITY: Some older nodes may not understand positive inbound fees"
@@ -119,7 +119,7 @@ echo "4. TOTAL FEES: Keep combined inbound+outbound fees competitive"
 echo "5. MARKET RESPONSE: Other nodes may adjust their fees in response"
 
 echo ""
-echo "🔧 QUICK ROLLBACK (remove all inbound fees)"
+echo "QUICK ROLLBACK (remove all inbound fees)"
 echo "═══════════════════════════════════════════"
 echo ""
 echo "# Reset all inbound fees to 0 (keep outbound changes):"
@@ -135,7 +135,7 @@ echo "lncli updatechanpolicy --chan_id 779651x576x1 --fee_rate 10 --inbound_fee_
 echo "lncli updatechanpolicy --chan_id 880360x2328x1 --fee_rate 88 --inbound_fee_rate_ppm 0"
 
 echo ""
-echo "📈 IMPLEMENTATION TIMELINE"
+echo "IMPLEMENTATION TIMELINE"
 echo "═════════════════════════"
 echo ""
 echo "Week 1: Phase 1 (Drain Protection) + monitor routing success"
@@ -143,4 +143,4 @@ echo "Week 2: Phase 2 (Performance Optimization) + assess balance impact"
 echo "Week 3: Phase 3 (Liquidity Rebalancing) + monitor channel health"
 echo "Week 4: Phase 4 (Dormant Activation) + evaluate overall performance"
 echo ""
-echo "🎯 Expected Result: 35-45% total revenue increase with better channel longevity"
+echo "Expected Result: 35-45% total revenue increase with better channel longevity"

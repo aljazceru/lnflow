@@ -65,7 +65,7 @@ class ExperimentRunner:
         console.print("")
         
         # Initialize experiment
-        console.print("[cyan]📊 Initializing experiment...[/cyan]")
+        console.print("[cyan]Initializing experiment...[/cyan]")
         try:
             success = await self.controller.initialize_experiment(duration_days)
             if not success:
@@ -75,7 +75,7 @@ class ExperimentRunner:
             console.print(f"[red]❌ Initialization failed: {e}[/red]")
             return
         
-        console.print("[green]✅ Experiment initialized successfully[/green]")
+        console.print("[green]Experiment initialized successfully[/green]")
         
         # Display experiment setup
         self._display_experiment_setup()
@@ -90,7 +90,7 @@ class ExperimentRunner:
                     should_continue = await self.controller.run_experiment_cycle()
                     
                     if not should_continue:
-                        console.print("\n[green]🎉 Experiment completed successfully![/green]")
+                        console.print("\n[green]Experiment completed successfully![/green]")
                         break
                     
                     self.cycle_count += 1
@@ -135,7 +135,7 @@ Safety Limits:
 • Rollback triggers: {self.controller.ROLLBACK_REVENUE_THRESHOLD:.0%} revenue drop or {self.controller.ROLLBACK_FLOW_THRESHOLD:.0%} flow reduction
         """
         
-        console.print(Panel(setup_info.strip(), title="📋 Experiment Setup"))
+        console.print(Panel(setup_info.strip(), title="Experiment Setup"))
     
     def _create_status_display(self):
         """Create live status display"""
@@ -201,8 +201,8 @@ Safety Limits:
         # Combine displays
         from rich.columns import Columns
         
-        status_panel = Panel(status_table, title="📊 Experiment Status")
-        activity_panel = Panel(activity_table, title="⚡ Recent Activity")
+        status_panel = Panel(status_table, title="Experiment Status")
+        activity_panel = Panel(activity_table, title="Recent Activity")
         
         return Columns([status_panel, activity_panel], equal=True)
     
@@ -233,7 +233,7 @@ Safety Limits:
     async def _generate_final_report(self):
         """Generate and display final experiment report"""
         
-        console.print("\n[cyan]📋 Generating final experiment report...[/cyan]")
+        console.print("\n[cyan]Generating final experiment report...[/cyan]")
         
         try:
             report = self.controller.generate_experiment_report()
@@ -250,11 +250,11 @@ Phases Completed: {', '.join(report['experiment_summary']['phases_completed'])}
 Safety Events: {len(report['safety_events'])} rollbacks occurred
             """
             
-            console.print(Panel(summary_text.strip(), title="📊 Final Results"))
+            console.print(Panel(summary_text.strip(), title="Final Results"))
             
             # Performance by group
             if report['performance_by_group']:
-                console.print("\n[bold]📈 Performance by Group[/bold]")
+                console.print("\n[bold]Performance by Group[/bold]")
                 
                 perf_table = Table(show_header=True, header_style="bold magenta")
                 perf_table.add_column("Group")
@@ -276,7 +276,7 @@ Safety Events: {len(report['safety_events'])} rollbacks occurred
             
             # Safety events
             if report['safety_events']:
-                console.print("\n[bold yellow]⚠️ Safety Events[/bold yellow]")
+                console.print("\n[bold yellow]Safety Events[/bold yellow]")
                 
                 safety_table = Table(show_header=True)
                 safety_table.add_column("Channel")
@@ -300,7 +300,7 @@ Safety Events: {len(report['safety_events'])} rollbacks occurred
             with open(report_path, 'w') as f:
                 json.dump(report, f, indent=2, default=str)
             
-            console.print(f"\n[green]📄 Detailed report saved to {report_path}[/green]")
+            console.print(f"\n[green]Detailed report saved to {report_path}[/green]")
             
         except Exception as e:
             logger.error(f"Failed to generate report: {e}")
@@ -322,7 +322,7 @@ def main(lnd_manage_url: str, lnd_rest_url: str, config: str, duration: int, int
         console.print("[yellow]🔬 Running in DRY-RUN mode - no actual fee changes will be made[/yellow]")
     
     if resume:
-        console.print("[cyan]🔄 Attempting to resume existing experiment...[/cyan]")
+        console.print("[cyan]Attempting to resume existing experiment...[/cyan]")
     
     try:
         runner = ExperimentRunner(lnd_manage_url, lnd_rest_url, config)

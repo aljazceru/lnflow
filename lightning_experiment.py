@@ -257,7 +257,7 @@ class CLIExperimentRunner:
             new_fee = change.get('new_fee', 'N/A')
             reason = change['reason'][:50] + "..." if len(change['reason']) > 50 else change['reason']
             
-            status_indicator = "🔙" if is_rollback else "⚡"
+            status_indicator = "ROLLBACK" if is_rollback else "UPDATE"
             
             table_data.append([
                 change['timestamp'].strftime('%H:%M:%S'),
@@ -278,7 +278,7 @@ class CLIExperimentRunner:
             return False
         
         try:
-            print(f"⚡ Running experiment cycle...")
+            print(f"Running experiment cycle...")
             
             # Monkey patch the fee application if dry run
             if dry_run:
@@ -369,9 +369,9 @@ def init(ctx, duration, macaroon_path, cert_path, dry_run):
                 print("Use --dry-run to simulate without LND connection")
                 return
         else:
-            print("🧪 Running in DRY-RUN mode (no actual fee changes)")
+            print("Running in DRY-RUN mode (no actual fee changes)")
         
-        print("📊 Analyzing channels and assigning segments...")
+        print("Analyzing channels and assigning segments...")
         success = await runner.controller.initialize_experiment(duration)
         
         if success:
@@ -484,7 +484,7 @@ def run(ctx, interval, max_cycles, dry_run, macaroon_path, cert_path):
                 print("Use --dry-run to simulate")
                 return
         
-        print(f"🚀 Starting experiment run (interval: {interval} minutes)")
+        print(f"Starting experiment run (interval: {interval} minutes)")
         if max_cycles:
             print(f"Will run maximum {max_cycles} cycles")
         print("Press Ctrl+C to stop")
@@ -501,11 +501,11 @@ def run(ctx, interval, max_cycles, dry_run, macaroon_path, cert_path):
                 should_continue = await runner.run_single_cycle(dry_run)
                 
                 if not should_continue:
-                    print("🎉 Experiment completed!")
+                    print("Experiment completed!")
                     break
                 
                 if max_cycles and cycle_count >= max_cycles:
-                    print(f"📊 Reached maximum cycles ({max_cycles})")
+                    print(f"Reached maximum cycles ({max_cycles})")
                     break
                 
                 print(f"⏳ Waiting {interval} minutes until next cycle...")
@@ -517,7 +517,7 @@ def run(ctx, interval, max_cycles, dry_run, macaroon_path, cert_path):
                     await asyncio.sleep(1)
                     
         except KeyboardInterrupt:
-            print("\n⏹️  Experiment stopped by user")
+            print("\nExperiment stopped by user")
         
         print("Generating final report...")
         runner.save_report()
@@ -559,7 +559,7 @@ def reset(ctx, backup):
     runner.controller.experiment_start = None
     runner.controller.current_phase = ExperimentPhase.BASELINE
     
-    print("🔄 Experiment reset. Use 'init' to start new experiment.")
+    print("Experiment reset. Use 'init' to start new experiment.")
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 
 A modern, intelligent fee management system that combines the flexibility of charge-lnd with advanced inbound fee strategies, machine learning, and automatic safety mechanisms.
 
-## 🚀 Key Improvements Over charge-lnd
+## Key Improvements Over charge-lnd
 
 ### 1. **Advanced Inbound Fee Strategies**
 - **charge-lnd**: Basic inbound fee support (mostly negative discounts)
@@ -73,7 +73,7 @@ flow.7d.min = 1000000            # Based on recent activity
 ./lightning_policy.py daemon --watch --interval 10
 ```
 
-## 🔧 Installation & Setup
+## Installation & Setup
 
 ### Requirements
 ```bash
@@ -94,7 +94,7 @@ pip install httpx pydantic click pandas numpy tabulate python-dotenv
 ./lightning_policy.py -c examples/my_policy.conf test-channel 123456x789x1
 ```
 
-## 📋 Configuration Syntax
+## Configuration Syntax
 
 ### Basic Structure (Compatible with charge-lnd)
 ```ini
@@ -134,7 +134,7 @@ min_fee_ppm = 100
 max_inbound_fee_ppm = 50
 ```
 
-## 🎯 Strategies Available
+## Strategies Available
 
 | Strategy | Description | charge-lnd Equivalent |
 |----------|-------------|----------------------|
@@ -145,7 +145,7 @@ max_inbound_fee_ppm = 50
 | `inbound_discount` | Focused on inbound fee optimization | New |
 | `cost_recovery` | Channel opening cost recovery | `cost` |
 
-## 🚀 Usage Examples
+## Usage Examples
 
 ### 1. Basic Setup (Similar to charge-lnd)
 ```bash
@@ -184,7 +184,7 @@ max_inbound_fee_ppm = 50
 ./lightning_policy.py -c examples/advanced_policy.conf test-channel 123456x789x1 --verbose
 ```
 
-## 🔄 Migration from charge-lnd
+## Migration from charge-lnd
 
 ### Step 1: Convert Configuration
 Most charge-lnd configurations work with minimal changes:
@@ -227,7 +227,7 @@ rollback_threshold = 0.25    # Rollback if revenue drops >25%
 ./lightning_policy.py -c migrated_config.conf daemon --watch
 ```
 
-## 📊 Performance Monitoring
+## Performance Monitoring
 
 ### Real-time Status
 ```bash
@@ -248,7 +248,7 @@ rollback_threshold = 0.25    # Rollback if revenue drops >25%
 ./lightning_policy.py -c config.conf rollback --execute --macaroon-path ~/.lnd/admin.macaroon
 ```
 
-## 🎯 Inbound Fee Strategies
+## Inbound Fee Strategies
 
 ### Liquidity-Based Discounts
 ```ini
@@ -279,7 +279,7 @@ network.min_alternatives = 5
 # Automatically adjusts based on peer fee rates
 ```
 
-## ⚠️ Safety Features
+## Safety Features
 
 ### Automatic Rollbacks
 - Monitors revenue performance after fee changes
@@ -334,7 +334,7 @@ strategy = revenue_max     # Optimize mature, active channels
 learning_enabled = true
 ```
 
-## 📈 Expected Results
+## Expected Results
 
 ### Revenue Optimization
 - **10-30% revenue increase** through data-driven fee optimization
@@ -351,7 +351,7 @@ learning_enabled = true
 - **Intelligent defaults** that learn from performance
 - **Comprehensive reporting** for decision making
 
-## 🤝 Compatibility
+## Compatibility
 
 ### charge-lnd Migration
 - **100% compatible** configuration syntax
@@ -363,14 +363,14 @@ learning_enabled = true
 - **Standard REST API** for fee changes
 - **Macaroon authentication** for security
 
-## 🎉 Summary
+## Summary
 
 This Lightning Policy Manager represents the **next evolution** of charge-lnd:
 
-✅ **All charge-lnd features** + **advanced inbound fee strategies**  
-✅ **Machine learning** + **automatic rollback protection**  
-✅ **Revenue optimization** + **comprehensive safety mechanisms**  
-✅ **Real-time monitoring** + **historical performance tracking**  
-✅ **Easy migration** + **powerful new capabilities**
+**All charge-lnd features** + **advanced inbound fee strategies**  
+**Machine learning** + **automatic rollback protection**  
+**Revenue optimization** + **comprehensive safety mechanisms**  
+**Real-time monitoring** + **historical performance tracking**  
+**Easy migration** + **powerful new capabilities**
 
 Perfect for node operators who want **intelligent, automated fee management** that **maximizes revenue** while **minimizing risk**.

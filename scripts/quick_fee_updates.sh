@@ -29,7 +29,7 @@ echo "lncli updatechanpolicy --chan_id 721508x1824x1 --fee_rate 11   # 10→11 p
 echo "lncli updatechanpolicy --chan_id 776941x111x1 --fee_rate 11    # 10→11 ppm (+10%) - B4BYM"
 echo ""
 
-echo "⚖️ BALANCE MANAGEMENT RECOMMENDATIONS (Monitor closely)"
+echo "BALANCE MANAGEMENT RECOMMENDATIONS (Monitor closely)"
 echo "These address channel liquidity imbalances:"
 echo ""
 
@@ -53,7 +53,7 @@ echo "lncli updatechanpolicy --chan_id 878853x1612x1 --fee_rate 445  # 297→445
 echo "lncli updatechanpolicy --chan_id 799714x355x0 --fee_rate 367   # 245→367 ppm (+49.8%)"
 echo ""
 
-echo "🔄 LOW ACTIVITY CHANNEL ACTIVATION (Lower confidence)"
+echo "LOW ACTIVITY CHANNEL ACTIVATION (Lower confidence)"
 echo "Reduce fees to try activating dormant channels:"
 echo ""
 
@@ -63,7 +63,7 @@ echo "lncli updatechanpolicy --chan_id 691153x813x1 --fee_rate 7     # 10→7 pp
 echo "lncli updatechanpolicy --chan_id 896882x554x1 --fee_rate 49    # 71→49 ppm (-31%)"
 echo ""
 
-echo "📊 MONITORING COMMANDS"
+echo "MONITORING COMMANDS"
 echo "Use these to track your changes:"
 echo ""
 
@@ -79,7 +79,7 @@ echo "# Check specific channel balance:"
 echo "lncli listchannels --chan_id CHANNEL_ID"
 echo ""
 
-echo "🚀 RECOMMENDED IMPLEMENTATION ORDER:"
+echo "RECOMMENDED IMPLEMENTATION ORDER:"
 echo ""
 echo "Week 1: Apply HIGH CONFIDENCE recommendations (10 channels)"
 echo "        Expected revenue increase: ~+15,000 sats/month"
@@ -94,7 +94,7 @@ echo "Week 4: Try low activity activation (3 channels)"
 echo "        Lowest confidence - may not have significant impact"
 echo ""
 
-echo "⚠️ SAFETY REMINDERS:"
+echo "SAFETY REMINDERS:"
 echo "- Changes take time to propagate through the network"
 echo "- Monitor for 48+ hours before making more changes"
 echo "- Keep a log of what you change and when"

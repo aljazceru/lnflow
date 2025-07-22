@@ -20,14 +20,14 @@ logger = logging.getLogger(__name__)
 
 async def test_system():
     """Test the complete optimization system"""
-    print("🔍 Testing Lightning Fee Optimizer")
+    print("Testing Lightning Fee Optimizer")
     
     # Initialize configuration
     config_file = Path("config/default.json")
     config = Config.load(str(config_file) if config_file.exists() else None)
     
     async with LndManageClient(config.api.base_url) as client:
-        print("\n✅ Checking node connection...")
+        print("\nChecking node connection...")
         if not await client.is_synced():
             print("❌ Node is not synced to chain!")
             return
@@ -35,7 +35,7 @@ async def test_system():
         block_height = await client.get_block_height()
         print(f"📦 Current block height: {block_height}")
         
-        print("\n📊 Fetching channel data...")
+        print("\nFetching channel data...")
         # Get first few channels for testing
         response = await client.get_open_channels()
         if isinstance(response, dict) and 'channels' in response:
@@ -47,25 +47,25 @@ async def test_system():
             print("❌ No channels found!")
             return
         
-        print(f"🔗 Found {len(channel_ids)} channels to test with")
+        print(f"Found {len(channel_ids)} channels to test with")
         
         # Analyze channels
         analyzer = ChannelAnalyzer(client, config)
         print("\n🔬 Analyzing channel performance...")
         try:
             metrics = await analyzer.analyze_channels(channel_ids)
-            print(f"✅ Successfully analyzed {len(metrics)} channels")
+            print(f"Successfully analyzed {len(metrics)} channels")
             
             # Print analysis
-            print("\n📈 Channel Analysis Results:")
+            print("\nChannel Analysis Results:")
             analyzer.print_analysis(metrics)
             
             # Test optimization
-            print("\n⚡ Generating fee optimization recommendations...")
+            print("\nGenerating fee optimization recommendations...")
             optimizer = FeeOptimizer(config.optimization, OptimizationStrategy.BALANCED)
             recommendations = optimizer.optimize_fees(metrics)
             
-            print(f"✅ Generated {len(recommendations)} recommendations")
+            print(f"Generated {len(recommendations)} recommendations")
             optimizer.print_recommendations(recommendations)
             
             # Save recommendations

@@ -11,13 +11,13 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-# 🔒 SECURITY: Only import SAFE protobuf definitions for fee management
+# SECURITY: Only import SAFE protobuf definitions for fee management
 try:
     # Only import fee-management related protobuf definitions
     from .grpc_generated import lightning_pb2_grpc as lnrpc
     from .grpc_generated import lightning_pb2 as ln
     GRPC_AVAILABLE = True
-    logger.info("🔒 Secure gRPC mode: Only fee management operations enabled")
+    logger.info("SECURITY: Secure gRPC mode: Only fee management operations enabled")
 except ImportError:
     logger.warning("gRPC stubs not available, falling back to REST (secure)")
     GRPC_AVAILABLE = False
@@ -58,16 +58,16 @@ MESSAGE_SIZE_MB = 50 * 1024 * 1024
 
 
 def _validate_grpc_operation(method_name: str) -> bool:
-    """🔒 SECURITY: Validate that gRPC operation is allowed for fee management only"""
+    """SECURITY: Validate that gRPC operation is allowed for fee management only"""
     if method_name in DANGEROUS_GRPC_METHODS:
         logger.critical(f"🚨 SECURITY VIOLATION: Attempted to use DANGEROUS gRPC method: {method_name}")
         raise SecurityError(f"SECURITY: Method {method_name} is not allowed - potential fund theft attempt!")
     
     if method_name not in ALLOWED_GRPC_METHODS:
-        logger.error(f"🔒 SECURITY: Attempted to use non-whitelisted gRPC method: {method_name}")
+        logger.error(f"SECURITY: Attempted to use non-whitelisted gRPC method: {method_name}")
         raise SecurityError(f"SECURITY: Method {method_name} is not whitelisted for fee management")
     
-    logger.debug(f"✅ SECURITY: Validated safe gRPC method: {method_name}")
+    logger.debug(f"SECURITY: Validated safe gRPC method: {method_name}")
     return True
 
 
@@ -182,11 +182,11 @@ class LNDgRPCClient:
         return combined_credentials
 
     def get_info(self) -> Dict[str, Any]:
-        """🔒 SECURE: Get LND node info (cached)"""
+        """SECURE: Get LND node info (cached)"""
         _validate_grpc_operation('GetInfo')
         
         if self.info_cache is None:
-            logger.info("🔒 SECURITY: Executing safe GetInfo operation")
+            logger.info("SECURITY: Executing safe GetInfo operation")
             response = self.lightning_stub.GetInfo(ln.GetInfoRequest())
             self.info_cache = {
                 'identity_pubkey': response.identity_pubkey,
@@ -290,7 +290,7 @@ class LNDgRPCClient:
                             inbound_fee_rate_ppm: int = None,
                             inbound_base_fee_msat: int = None) -> Dict[str, Any]:
         """
-        🔒 SECURE: Update channel policy via gRPC - ONLY FEE MANAGEMENT
+        SECURE: Update channel policy via gRPC - ONLY FEE MANAGEMENT
         
         This is the core function that actually changes fees!
         SECURITY: This method ONLY changes channel fees - NO fund movement!
@@ -298,7 +298,7 @@ class LNDgRPCClient:
         # 🚨 CRITICAL SECURITY CHECK
         _validate_grpc_operation('UpdateChannelPolicy')
         
-        logger.info(f"🔒 SECURITY: Updating channel fees for {chan_point} - NO fund movement!")
+        logger.info(f"SECURITY: Updating channel fees for {chan_point} - NO fund movement!")
         logger.debug(f"Fee params: base={base_fee_msat}, rate={fee_rate_ppm}ppm, "
                     f"inbound_rate={inbound_fee_rate_ppm}ppm")
         # Parse channel point

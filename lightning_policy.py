@@ -90,10 +90,10 @@ def apply(ctx, dry_run, macaroon_path, cert_path):
     
     async def _apply():
         if dry_run:
-            print("🧪 DRY-RUN MODE: Showing policy recommendations without applying changes")
+            print("DRY-RUN MODE: Showing policy recommendations without applying changes")
         else:
             protocol = "gRPC" if ctx.obj.get('prefer_grpc', True) else "REST"
-            print(f"⚡ Applying policy-based fee changes via {protocol} API...")
+            print(f"Applying policy-based fee changes via {protocol} API...")
         
         results = await manager.apply_policies(
             dry_run=dry_run,
@@ -200,7 +200,7 @@ def rollback(ctx, execute, macaroon_path, cert_path):
     manager = ctx.obj['manager']
     
     async def _rollback():
-        print("🔍 Checking rollback conditions...")
+        print("Checking rollback conditions...")
         
         rollback_info = await manager.check_rollback_conditions()
         
@@ -229,7 +229,7 @@ def rollback(ctx, execute, macaroon_path, cert_path):
                      tablefmt="grid"))
         
         if execute:
-            print(f"\n⚡ Executing {len(rollback_info['actions'])} rollbacks...")
+            print(f"\nExecuting {len(rollback_info['actions'])} rollbacks...")
             
             # Initialize LND connection
             from src.experiment.lnd_integration import LNDRestClient
@@ -254,7 +254,7 @@ def rollback(ctx, execute, macaroon_path, cert_path):
                     for error in rollback_results['errors']:
                         print(f"• {error}")
         else:
-            print(f"\n🧪 DRY-RUN: Use --execute to actually perform rollbacks")
+            print(f"\nDRY-RUN: Use --execute to actually perform rollbacks")
     
     asyncio.run(_rollback())
 
@@ -389,7 +389,7 @@ def daemon(ctx, watch, interval, macaroon_path, cert_path):
                     print(f"Applied {results['fee_changes']} fee changes")
                     
                     if results['errors']:
-                        print(f"⚠️  {len(results['errors'])} errors occurred")
+                        print(f"WARNING: {len(results['errors'])} errors occurred")
                 
                 except Exception as e:
                     print(f"❌ Policy application failed: {e}")
@@ -437,7 +437,7 @@ def test_channel(ctx, channel_id, verbose):
     manager = ctx.obj['manager']
     
     async def _test():
-        print(f"🔍 Testing policy evaluation for channel: {channel_id}")
+        print(f"Testing policy evaluation for channel: {channel_id}")
         
         # Get channel data
         from src.api.client import LndManageClient
