@@ -2,18 +2,6 @@
 
 Next-generation Lightning Network channel fee optimization with advanced inbound fee strategies, machine learning, and automatic rollback protection.
 
-## Overview
-
-Lightning Policy Manager is an intelligent fee management system that enhances the popular **charge-lnd** tool with:
-- **Advanced inbound fee strategies** (beyond simple discounts)
-- **Automatic rollback protection** for safety
-- **Machine learning optimization** from historical data
-- **Revenue maximization focus** vs simple rule-based approaches  
-- **High-performance gRPC integration** with REST fallback
-- **Comprehensive security** with method whitelisting
-- **Complete charge-lnd compatibility**
-
-
 ## Quick Start
 
 ### 1. Setup Environment
@@ -25,8 +13,7 @@ source venv/bin/activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Setup secure gRPC (optional, for better performance)
-./scripts/setup_grpc.sh
+
 ```
 
 ### 2. Generate Configuration
@@ -68,11 +55,7 @@ enable_auto_rollback = true       # Monitor performance
 rollback_threshold = 0.25         # Rollback if revenue drops >25%
 ```
 
-### High-Performance gRPC
-- **10x faster** fee updates than REST
-- **Native LND interface** (same as charge-lnd)
-- **Automatic fallback** to REST if gRPC unavailable
-- **Secure by design** - only fee management operations allowed
+
 
 ### Advanced Analytics
 - **Policy performance tracking**
@@ -80,13 +63,6 @@ rollback_threshold = 0.25         # Rollback if revenue drops >25%
 - **Channel analysis and insights**
 - **Historical data learning**
 
-## Security Features
-
-- **Method whitelisting** - only fee management operations allowed
-- **Runtime validation** - dangerous operations blocked
-- **Comprehensive audit** - all operations logged
-- **No fund movement** - only channel fee updates
-- **Production-ready** - enterprise security standards
 
 ## Documentation
 
@@ -140,25 +116,3 @@ python -m pytest test_optimizer.py
 # Test specific channel
 ./lightning_policy.py -c your_config.conf test-channel CHANNEL_ID
 ```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure security standards are maintained
-6. Submit a pull request
-
-## License
-
-This project enhances and builds upon the open-source charge-lnd tool while adding significant new capabilities for Lightning Network fee optimization.
-
-## Related Projects
-
-- **[charge-lnd](https://github.com/accumulator/charge-lnd)** - Original fee management tool
-- **[LND](https://github.com/lightningnetwork/lnd)** - Lightning Network Daemon
-
----
-
-**Supercharge your Lightning Network channel fee management with intelligent, automated optimization!**
