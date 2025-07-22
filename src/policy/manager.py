@@ -191,8 +191,17 @@ class PolicyManager:
                                     rule.applied_count += 1
                                     rule.last_applied = datetime.utcnow()
                         
-                        logger.info(f"Policy applied to {channel_id}: {[r.name for r in matching_rules]} "
-                                  f"→ {outbound_fee}ppm outbound, {inbound_fee}ppm inbound")
+                        # Enhanced logging with detailed channel and policy information
+                        peer_alias = enriched_channel.get('peer', {}).get('alias', 'Unknown')
+                        capacity_btc = capacity / 100_000_000
+                        logger.info(
+                            f"Policy applied to {channel_id} [{peer_alias}]:\n"
+                            f"  Capacity: {capacity_btc:.3f} BTC ({capacity:,} sats)\n"
+                            f"  Balance: {local_balance:,} / {remote_balance:,} (ratio: {balance_ratio:.2%})\n"
+                            f"  Policies: {[r.name for r in matching_rules]}\n"
+                            f"  Fee Change: {current_outbound} → {outbound_fee}ppm outbound, {current_inbound} → {inbound_fee}ppm inbound\n"
+                            f"  Base Fees: {outbound_base}msat outbound, {inbound_base}msat inbound"
+                        )
                     
                 except Exception as e:
                     error_msg = f"Error processing channel {channel_id}: {e}"
@@ -206,9 +215,22 @@ class PolicyManager:
         # Generate performance summary
         results['performance_summary'] = self.policy_engine.get_policy_performance_report()
         
-        logger.info(f"Policy application complete: {results['fee_changes']} changes, "
-                   f"{results['policies_applied']} policies applied, "
-                   f"{len(results['errors'])} errors")
+        # Enhanced summary logging
+        logger.info(
+            f"Policy Application Summary:\n"
+            f"  Channels Processed: {results.get('channels_processed', 0)}\n"
+            f"  Fee Changes Applied: {results['fee_changes']}\n"
+            f"  Policies Applied: {results['policies_applied']}\n"
+            f"  Errors: {len(results['errors'])}\n"
+            f"  Session ID: {results.get('session_id', 'N/A')}"
+        )
+        
+        if results['errors']:
+            logger.warning(f"Errors encountered during policy application:")
+            for i, error in enumerate(results['errors'][:5], 1):  # Show first 5 errors
+                logger.warning(f"  {i}. {error}")
+            if len(results['errors']) > 5:
+                logger.warning(f"  ... and {len(results['errors']) - 5} more errors")
         
         return results
     
@@ -219,6 +241,12 @@ class PolicyManager:
         # Extract basic info
         channel_id = channel_info.get('channelIdCompact')
         capacity = int(channel_info.get('capacity', 0)) if channel_info.get('capacity') else 0
+        
+        logger.debug(f"Processing channel {channel_id}:")
+        logger.debug(f"  Raw capacity: {channel_info.get('capacity')}")
+        logger.debug(f"  Raw balance info: {channel_info.get('balance', {})}")
+        logger.debug(f"  Raw policies: {channel_info.get('policies', {})}")
+        logger.debug(f"  Raw peer info: {channel_info.get('peer', {})}")
         
         # Get balance info
         balance_info = channel_info.get('balance', {})
@@ -321,12 +349,26 @@ class PolicyManager:
                     time_lock_delta=80
                 )
             
-            logger.info(f"Applied fees via {client_type} to {channel_id}: "
-                       f"{outbound_fee}ppm outbound, {inbound_fee}ppm inbound")
+            logger.info(
+                f"Successfully applied fees via {client_type} to {channel_id}:\n"
+                f"  Channel Point: {chan_point}\n"
+                f"  Outbound: {outbound_fee}ppm (base: {outbound_base}msat)\n"
+                f"  Inbound: {inbound_fee}ppm (base: {inbound_base}msat)\n"
+                f"  Time Lock Delta: 80"
+            )
             return True
             
         except Exception as e:
-            logger.error(f"Failed to apply fees to {channel_id} via {client_type}: {e}")
+            logger.error(
+                f"Failed to apply fees to {channel_id} via {client_type}:\n"
+                f"  Error: {str(e)}\n"
+                f"  Channel Point: {chan_point}\n"
+                f"  Attempted Parameters:\n"
+                f"    Outbound: {outbound_fee}ppm (base: {outbound_base}msat)\n"
+                f"    Inbound: {inbound_fee}ppm (base: {inbound_base}msat)\n"
+                f"    Time Lock Delta: 80\n"
+                f"  Exception Type: {type(e).__name__}"
+            )
             return False
     
     async def check_rollback_conditions(self) -> Dict[str, Any]:

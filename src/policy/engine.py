@@ -304,58 +304,99 @@ class PolicyEngine:
     def match_channel(self, channel_data: Dict[str, Any]) -> List[PolicyRule]:
         """Find matching policies for a channel"""
         matching_rules = []
+        channel_id = channel_data.get('channel_id', 'unknown')
+        
+        logger.debug(f"Evaluating policies for channel {channel_id}:")
+        logger.debug(f"  Channel Data: capacity={channel_data.get('capacity', 0):,}, "
+                    f"balance_ratio={channel_data.get('local_balance_ratio', 0.5):.2%}, "
+                    f"activity={channel_data.get('activity_level', 'unknown')}")
         
         for rule in self.rules:
             if not rule.enabled:
+                logger.debug(f"  Skipping disabled policy: {rule.name}")
                 continue
                 
             if self._channel_matches(channel_data, rule.matcher):
                 matching_rules.append(rule)
+                logger.debug(f"  ✓ MATCHED policy: {rule.name} (priority {rule.priority})")
                 
                 # Stop if this is a final policy
                 if rule.policy.policy_type == PolicyType.FINAL:
+                    logger.debug(f"  Stopping at final policy: {rule.name}")
                     break
+            else:
+                logger.debug(f"  ✗ SKIPPED policy: {rule.name}")
         
+        logger.debug(f"  Final matches for {channel_id}: {[r.name for r in matching_rules]}")
         return matching_rules
     
     def _channel_matches(self, channel_data: Dict[str, Any], matcher: PolicyMatcher) -> bool:
-        """Check if channel matches policy criteria"""
+        """Check if channel matches policy criteria with detailed debug logging"""
         
         # Channel ID matching
-        if matcher.chan_id and channel_data.get('channel_id') not in matcher.chan_id:
-            return False
+        if matcher.chan_id:
+            channel_id = channel_data.get('channel_id', '')
+            if channel_id not in matcher.chan_id:
+                logger.debug(f"    ✗ Channel ID mismatch: {channel_id} not in {matcher.chan_id}")
+                return False
+            logger.debug(f"    ✓ Channel ID matches: {channel_id}")
         
         # Capacity matching
         capacity = channel_data.get('capacity', 0)
-        if matcher.chan_capacity_min and capacity < matcher.chan_capacity_min:
-            return False
-        if matcher.chan_capacity_max and capacity > matcher.chan_capacity_max:
-            return False
+        if matcher.chan_capacity_min:
+            if capacity < matcher.chan_capacity_min:
+                logger.debug(f"    ✗ Capacity too small: {capacity:,} < {matcher.chan_capacity_min:,}")
+                return False
+            logger.debug(f"    ✓ Capacity min OK: {capacity:,} >= {matcher.chan_capacity_min:,}")
+        if matcher.chan_capacity_max:
+            if capacity > matcher.chan_capacity_max:
+                logger.debug(f"    ✗ Capacity too large: {capacity:,} > {matcher.chan_capacity_max:,}")
+                return False
+            logger.debug(f"    ✓ Capacity max OK: {capacity:,} <= {matcher.chan_capacity_max:,}")
         
         # Balance ratio matching
         balance_ratio = channel_data.get('local_balance_ratio', 0.5)
-        if matcher.chan_balance_ratio_min and balance_ratio < matcher.chan_balance_ratio_min:
-            return False
-        if matcher.chan_balance_ratio_max and balance_ratio > matcher.chan_balance_ratio_max:
-            return False
+        if matcher.chan_balance_ratio_min:
+            if balance_ratio < matcher.chan_balance_ratio_min:
+                logger.debug(f"    ✗ Balance ratio too low: {balance_ratio:.2%} < {matcher.chan_balance_ratio_min:.2%}")
+                return False
+            logger.debug(f"    ✓ Balance ratio min OK: {balance_ratio:.2%} >= {matcher.chan_balance_ratio_min:.2%}")
+        if matcher.chan_balance_ratio_max:
+            if balance_ratio > matcher.chan_balance_ratio_max:
+                logger.debug(f"    ✗ Balance ratio too high: {balance_ratio:.2%} > {matcher.chan_balance_ratio_max:.2%}")
+                return False
+            logger.debug(f"    ✓ Balance ratio max OK: {balance_ratio:.2%} <= {matcher.chan_balance_ratio_max:.2%}")
         
         # Node ID matching
-        peer_id = channel_data.get('peer_pubkey', '')
-        if matcher.node_id and peer_id not in matcher.node_id:
-            return False
+        if matcher.node_id:
+            peer_id = channel_data.get('peer_pubkey', '')
+            if peer_id not in matcher.node_id:
+                logger.debug(f"    ✗ Peer ID mismatch: {peer_id[:16]}... not in target list")
+                return False
+            logger.debug(f"    ✓ Peer ID matches: {peer_id[:16]}...")
         
         # Activity level matching
-        activity = channel_data.get('activity_level', 'inactive')
-        if matcher.activity_level and activity not in matcher.activity_level:
-            return False
+        if matcher.activity_level:
+            activity = channel_data.get('activity_level', 'inactive')
+            if activity not in matcher.activity_level:
+                logger.debug(f"    ✗ Activity level mismatch: '{activity}' not in {matcher.activity_level}")
+                return False
+            logger.debug(f"    ✓ Activity level matches: '{activity}' in {matcher.activity_level}")
         
         # Flow matching
         flow_7d = channel_data.get('flow_7d', 0)
-        if matcher.flow_7d_min and flow_7d < matcher.flow_7d_min:
-            return False
-        if matcher.flow_7d_max and flow_7d > matcher.flow_7d_max:
-            return False
+        if matcher.flow_7d_min:
+            if flow_7d < matcher.flow_7d_min:
+                logger.debug(f"    ✗ Flow too low: {flow_7d:,} < {matcher.flow_7d_min:,}")
+                return False
+            logger.debug(f"    ✓ Flow min OK: {flow_7d:,} >= {matcher.flow_7d_min:,}")
+        if matcher.flow_7d_max:
+            if flow_7d > matcher.flow_7d_max:
+                logger.debug(f"    ✗ Flow too high: {flow_7d:,} > {matcher.flow_7d_max:,}")
+                return False
+            logger.debug(f"    ✓ Flow max OK: {flow_7d:,} <= {matcher.flow_7d_max:,}")
         
+        logger.debug(f"    ✓ All criteria passed")
         return True
     
     def calculate_fees(self, channel_data: Dict[str, Any]) -> Tuple[int, int, int, int]:

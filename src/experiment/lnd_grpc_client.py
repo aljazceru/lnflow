@@ -434,11 +434,32 @@ class AsyncLNDgRPCClient:
         return await loop.run_in_executor(None, self.sync_client.list_channels)
     
     async def update_channel_policy(self, *args, **kwargs):
-        """Async version of update_channel_policy"""
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(
-            None, self.sync_client.update_channel_policy, *args, **kwargs
+        """Async version of update_channel_policy with enhanced logging"""
+        logger.debug(
+            f"gRPC update_channel_policy called with:\n"
+            f"  Args: {args}\n"
+            f"  Kwargs: {kwargs}"
         )
+        
+        try:
+            loop = asyncio.get_event_loop()
+            # Fix: Use lambda to properly pass kwargs to run_in_executor
+            result = await loop.run_in_executor(
+                None, lambda: self.sync_client.update_channel_policy(*args, **kwargs)
+            )
+            
+            logger.debug(f"gRPC update_channel_policy succeeded: {result}")
+            return result
+            
+        except Exception as e:
+            logger.error(
+                f"gRPC update_channel_policy failed:\n"
+                f"  Error: {str(e)}\n"
+                f"  Exception Type: {type(e).__name__}\n"
+                f"  Args: {args}\n"
+                f"  Kwargs: {kwargs}"
+            )
+            raise
     
     async def __aenter__(self):
         return self
