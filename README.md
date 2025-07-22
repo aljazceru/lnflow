@@ -13,45 +13,6 @@ Lightning Policy Manager is an intelligent fee management system that enhances t
 - **Comprehensive security** with method whitelisting
 - **Complete charge-lnd compatibility**
 
-## Repository Structure
-
-```
-lightning-fee-optimizer/
-├── README.md                       # This file
-├── pyproject.toml                  # Modern Python project config
-├── requirements.txt                # Python dependencies
-├── .gitignore                      # Git ignore rules
-├──
-├── src/                            # Main application source
-│   ├── main.py                     # Application entry point
-│   ├── api/                        # LND API clients
-│   ├── experiment/                 # Experiment framework
-│   ├── analysis/                   # Channel analysis
-│   ├── policy/                     # Policy management engine
-│   ├── strategy/                   # Fee optimization strategies
-│   ├── utils/                      # Utilities & database
-│   └── models/                     # Data models
-├──
-├── scripts/                        # Automation scripts
-│   ├── setup_grpc.sh               # Secure gRPC setup
-│   ├── advanced_fee_strategy.sh    # Advanced fee management
-│   └── *.sh                       # Other automation scripts
-├──
-├── examples/                       # Configuration examples
-│   ├── basic_policy.conf          # Simple policy example
-│   └── advanced_policy.conf       # Advanced features demo
-├──
-├── docs/                           # Documentation
-│   ├── LIGHTNING_POLICY_README.md    # Detailed guide
-│   ├── SECURITY_ANALYSIS_REPORT.md   # Security audit
-│   ├── GRPC_UPGRADE.md               # gRPC integration
-│   └── *.md                          # Other documentation
-├──
-├── lightning_policy.py             # Main CLI tool
-├── lightning_experiment.py        # Experiment runner
-├── analyze_data.py                 # Data analysis tool
-└── test_*.py                      # Test files
-```
 
 ## Quick Start
 
@@ -166,18 +127,6 @@ rollback_threshold = 0.25         # Rollback if revenue drops >25%
 --lnd-dir ~/.lnd                     # LND directory
 --macaroon-path admin.macaroon       # Macaroon file
 ```
-
-## Comparison with charge-lnd
-
-| Feature | charge-lnd | Lightning Policy Manager |
-|---------|------------|-------------------------|
-| **Basic Fee Management** | Yes | Enhanced |
-| **Inbound Fee Support** | Limited | Advanced strategies |
-| **Performance Monitoring** | No | Automatic rollbacks |
-| **Machine Learning** | No | Data-driven optimization |
-| **API Performance** | gRPC only | gRPC + REST fallback |
-| **Security** | Basic | Enterprise-grade |
-| **Revenue Focus** | Rule-based | Revenue optimization |
 
 ## Testing
 
