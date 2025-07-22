@@ -192,8 +192,12 @@ class PolicyManager:
                                     rule.last_applied = datetime.utcnow()
                         
                         # Enhanced logging with detailed channel and policy information
-                        peer_alias = enriched_channel.get('peer', {}).get('alias', 'Unknown')
+                        peer_alias = enriched_data.get('peer', {}).get('alias', 'Unknown')
+                        capacity = enriched_data.get('capacity', 0)
                         capacity_btc = capacity / 100_000_000
+                        local_balance = enriched_data.get('local_balance', 0)
+                        remote_balance = enriched_data.get('remote_balance', 0)
+                        balance_ratio = enriched_data.get('local_balance_ratio', 0.5)
                         logger.info(
                             f"Policy applied to {channel_id} [{peer_alias}]:\n"
                             f"  Capacity: {capacity_btc:.3f} BTC ({capacity:,} sats)\n"
