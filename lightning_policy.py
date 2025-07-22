@@ -18,10 +18,15 @@ import asyncio
 import logging
 import sys
 import json
+import os
 from pathlib import Path
 from datetime import datetime
 import click
 from tabulate import tabulate
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
@@ -45,11 +50,11 @@ def setup_logging(verbose: bool = False):
 
 @click.group()
 @click.option('--verbose', '-v', is_flag=True, help='Enable verbose logging')
-@click.option('--lnd-manage-url', default='http://localhost:18081', help='LND Manage API URL')
-@click.option('--lnd-rest-url', default='https://localhost:8080', help='LND REST API URL')
-@click.option('--lnd-grpc-host', default='localhost:10009', help='LND gRPC endpoint (preferred)')
-@click.option('--lnd-dir', default='~/.lnd', help='LND directory path')
-@click.option('--prefer-grpc/--prefer-rest', default=True, help='Prefer gRPC over REST API (faster)')
+@click.option('--lnd-manage-url', default=os.getenv('LND_MANAGE_URL', 'http://localhost:8081'), help='LND Manage API URL')
+@click.option('--lnd-rest-url', default=os.getenv('LND_REST_URL', 'https://localhost:8080'), help='LND REST API URL')
+@click.option('--lnd-grpc-host', default=os.getenv('LND_GRPC_HOST', 'localhost:10009'), help='LND gRPC endpoint (preferred)')
+@click.option('--lnd-dir', default=os.getenv('LND_DIR', '~/.lnd'), help='LND directory path')
+@click.option('--prefer-grpc/--prefer-rest', default=os.getenv('PREFER_GRPC', 'true').lower() == 'true', help='Prefer gRPC over REST API (faster)')
 @click.option('--config', '-c', type=click.Path(exists=True), help='Policy configuration file')
 @click.pass_context
 def cli(ctx, verbose, lnd_manage_url, lnd_rest_url, lnd_grpc_host, lnd_dir, prefer_grpc, config):
@@ -78,8 +83,8 @@ def cli(ctx, verbose, lnd_manage_url, lnd_rest_url, lnd_grpc_host, lnd_dir, pref
 
 @cli.command()
 @click.option('--dry-run', is_flag=True, help='Show what would be changed without applying')
-@click.option('--macaroon-path', help='Path to admin.macaroon file')
-@click.option('--cert-path', help='Path to tls.cert file')
+@click.option('--macaroon-path', default=os.getenv('LND_MACAROON_PATH', '/root/.lnd/data/chain/bitcoin/mainnet/admin.macaroon'), help='Path to admin.macaroon file')
+@click.option('--cert-path', default=os.getenv('LND_CERT_PATH', '/root/.lnd/tls.cert'), help='Path to tls.cert file')
 @click.pass_context
 def apply(ctx, dry_run, macaroon_path, cert_path):
     """Apply policy-based fee changes to all channels"""
@@ -192,8 +197,8 @@ def status(ctx):
 
 @cli.command()
 @click.option('--execute', is_flag=True, help='Execute rollbacks (default is dry-run)')
-@click.option('--macaroon-path', help='Path to admin.macaroon file')  
-@click.option('--cert-path', help='Path to tls.cert file')
+@click.option('--macaroon-path', default=os.getenv('LND_MACAROON_PATH', '/root/.lnd/data/chain/bitcoin/mainnet/admin.macaroon'), help='Path to admin.macaroon file')  
+@click.option('--cert-path', default=os.getenv('LND_CERT_PATH', '/root/.lnd/tls.cert'), help='Path to tls.cert file')
 @click.pass_context
 def rollback(ctx, execute, macaroon_path, cert_path):
     """Check for and execute automatic rollbacks of underperforming changes"""
@@ -356,8 +361,8 @@ def generate_config(ctx, output_file):
 @cli.command()
 @click.option('--watch', is_flag=True, help='Watch mode - apply policies every 10 minutes')
 @click.option('--interval', default=10, help='Minutes between policy applications in watch mode')
-@click.option('--macaroon-path', help='Path to admin.macaroon file')
-@click.option('--cert-path', help='Path to tls.cert file')
+@click.option('--macaroon-path', default=os.getenv('LND_MACAROON_PATH', '/root/.lnd/data/chain/bitcoin/mainnet/admin.macaroon'), help='Path to admin.macaroon file')
+@click.option('--cert-path', default=os.getenv('LND_CERT_PATH', '/root/.lnd/tls.cert'), help='Path to tls.cert file')
 @click.pass_context
 def daemon(ctx, watch, interval, macaroon_path, cert_path):
     """Run policy manager in daemon mode with automatic rollbacks"""
