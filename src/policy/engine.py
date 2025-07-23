@@ -507,7 +507,7 @@ class PolicyEngine:
         
         return (
             outbound_fee_ppm or 1000,
-            outbound_base_fee or 1000,
+            outbound_base_fee or 0,
             inbound_fee_ppm or 0,
             inbound_base_fee or 0
         )
@@ -567,7 +567,7 @@ def create_sample_config() -> str:
 [default]
 # Non-final policy that sets defaults
 final = false
-base_fee_msat = 1000
+base_fee_msat = 0
 fee_ppm = 1000
 time_lock_delta = 80
 strategy = static
@@ -639,7 +639,7 @@ priority = 50
 chan.max_ratio = 0.1
 chan.min_capacity = 250000
 strategy = static
-base_fee_msat = 1000
+base_fee_msat = 0
 fee_ppm = 3000
 inbound_fee_ppm = 100
 priority = 90

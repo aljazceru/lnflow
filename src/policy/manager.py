@@ -462,7 +462,7 @@ class PolicyManager:
                                 chan_point=chan_point,
                                 fee_rate_ppm=action['old_outbound'],
                                 inbound_fee_rate_ppm=action['old_inbound'],
-                                base_fee_msat=1000,
+                                base_fee_msat=0,
                                 time_lock_delta=80
                             )
                             
