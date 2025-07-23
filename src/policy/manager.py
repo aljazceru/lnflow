@@ -143,14 +143,17 @@ class PolicyManager:
                     # Check if fees need to change
                     current_outbound = enriched_data.get('current_outbound_fee', 0)
                     current_inbound = enriched_data.get('current_inbound_fee', 0)
+                    current_outbound_base_fee = enriched_data.get('current_outbound_base', 0)
+                    current_inbound_base_fee = enriched_data.get('current_inbound_base', 0)
                     
-                    if (outbound_fee != current_outbound or inbound_fee != current_inbound):
+                    if (outbound_fee != current_outbound or inbound_fee != current_inbound or 
+                        outbound_base != current_outbound_base_fee or inbound_base != current_inbound_base_fee):
                         
                         # Apply fee change
                         if dry_run:
                             logger.info(f"[DRY-RUN] Would update {channel_id}: "
-                                      f"outbound {current_outbound}→{outbound_fee}ppm, "
-                                      f"inbound {current_inbound}→{inbound_fee}ppm")
+                                      f"outbound {current_outbound}→{outbound_fee}ppm (base: {current_outbound_base_fee}→{outbound_base}msat), "
+                                      f"inbound {current_inbound}→{inbound_fee}ppm (base: {current_inbound_base_fee}→{inbound_base}msat)")
                         else:
                             success = await self._apply_fee_change(
                                 lnd_client, client_type, channel_id, channel_info,
@@ -264,6 +267,8 @@ class PolicyManager:
         local_policy = policies.get('local', {})
         current_outbound_fee = int(local_policy.get('feeRatePpm', 0)) if local_policy.get('feeRatePpm') else 0
         current_inbound_fee = int(local_policy.get('inboundFeeRatePpm', 0)) if local_policy.get('inboundFeeRatePpm') else 0
+        current_outbound_base = int(local_policy.get('feeBaseMsat', 0)) if local_policy.get('feeBaseMsat') else 0
+        current_inbound_base = int(local_policy.get('inboundFeeBaseMsat', 0)) if local_policy.get('inboundFeeBaseMsat') else 0
         
         # Get flow data
         flow_info = channel_info.get('flowReport', {})
@@ -301,6 +306,8 @@ class PolicyManager:
             'remote_balance': remote_balance,
             'current_outbound_fee': current_outbound_fee,
             'current_inbound_fee': current_inbound_fee,
+            'current_outbound_base': current_outbound_base,
+            'current_inbound_base': current_inbound_base,
             'flow_in_7d': flow_in_7d,
             'flow_out_7d': flow_out_7d,
             'flow_7d': total_flow_7d,
