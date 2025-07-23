@@ -267,8 +267,8 @@ class PolicyManager:
         local_policy = policies.get('local', {})
         current_outbound_fee = int(local_policy.get('feeRatePpm', 0)) if local_policy.get('feeRatePpm') else 0
         current_inbound_fee = int(local_policy.get('inboundFeeRatePpm', 0)) if local_policy.get('inboundFeeRatePpm') else 0
-        current_outbound_base = int(local_policy.get('feeBaseMsat', 0)) if local_policy.get('feeBaseMsat') else 0
-        current_inbound_base = int(local_policy.get('inboundFeeBaseMsat', 0)) if local_policy.get('inboundFeeBaseMsat') else 0
+        current_outbound_base = int(local_policy.get('baseFeeMilliSat', 0)) if local_policy.get('baseFeeMilliSat') else 0
+        current_inbound_base = int(local_policy.get('inboundBaseFeeMilliSat', 0)) if local_policy.get('inboundBaseFeeMilliSat') else 0
         
         # Get flow data
         flow_info = channel_info.get('flowReport', {})
