@@ -410,7 +410,7 @@ class PolicyEngine:
         
         if not matching_rules:
             # Use defaults
-            return (1000, 1000, 0, 0)  # Default values
+            return (1000, 0, 0, 0)  # Default values
         
         # Apply policies in order (non-final policies first, then final)
         outbound_fee_ppm = None
