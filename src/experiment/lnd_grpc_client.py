@@ -26,12 +26,16 @@ except ImportError:
 ALLOWED_GRPC_METHODS = {
     # Read operations (safe)
     'GetInfo',
-    'ListChannels', 
+    'ListChannels',
     'GetChanInfo',
     'FeeReport',
     'DescribeGraph',
     'GetNodeInfo',
-    
+    'ForwardingHistory',  # Read forwarding events for opportunity detection
+
+    # Monitoring operations (safe - read-only subscriptions)
+    'SubscribeHtlcEvents',  # Monitor HTLC events for missed opportunities
+
     # Fee management ONLY (the only write operation allowed)
     'UpdateChannelPolicy',
 }
@@ -280,6 +284,101 @@ class LNDgRPCClient:
             logger.error(f"Failed to get channel info for {chan_id}: {e}")
             return None
 
+    def get_forwarding_history(self,
+                              start_time: Optional[int] = None,
+                              end_time: Optional[int] = None,
+                              index_offset: int = 0,
+                              num_max_events: int = 1000) -> List[Dict[str, Any]]:
+        """
+        Get forwarding history for opportunity analysis
+
+        Args:
+            start_time: Start timestamp (unix seconds)
+            end_time: End timestamp (unix seconds)
+            index_offset: Offset for pagination
+            num_max_events: Max events to return
+
+        Returns:
+            List of forwarding events
+        """
+        _validate_grpc_operation('ForwardingHistory')
+
+        request = ln.ForwardingHistoryRequest(
+            start_time=start_time or 0,
+            end_time=end_time or 0,
+            index_offset=index_offset,
+            num_max_events=num_max_events
+        )
+
+        try:
+            response = self.lightning_stub.ForwardingHistory(request)
+            events = []
+            for event in response.forwarding_events:
+                events.append({
+                    'timestamp': event.timestamp,
+                    'chan_id_in': event.chan_id_in,
+                    'chan_id_out': event.chan_id_out,
+                    'amt_in': event.amt_in,
+                    'amt_out': event.amt_out,
+                    'fee': event.fee,
+                    'fee_msat': event.fee_msat,
+                    'amt_in_msat': event.amt_in_msat,
+                    'amt_out_msat': event.amt_out_msat
+                })
+            return events
+        except grpc.RpcError as e:
+            logger.error(f"Failed to get forwarding history: {e}")
+            return []
+
+    def subscribe_htlc_events(self):
+        """
+        Subscribe to HTLC events for real-time opportunity detection
+
+        Yields HTLC event dicts as they occur
+        """
+        _validate_grpc_operation('SubscribeHtlcEvents')
+
+        request = ln.SubscribeHtlcEventsRequest()
+
+        try:
+            for htlc_event in self.lightning_stub.SubscribeHtlcEvents(request):
+                # Parse event type
+                event_data = {
+                    'timestamp': datetime.utcnow().isoformat()
+                }
+
+                # Check event type and extract relevant data
+                if htlc_event.HasField('forward_event'):
+                    event_data['event_type'] = 'forward'
+                    event_data['incoming_channel_id'] = htlc_event.incoming_channel_id
+                    event_data['outgoing_channel_id'] = htlc_event.outgoing_channel_id
+                    event_data['incoming_htlc_id'] = htlc_event.incoming_htlc_id
+                    event_data['outgoing_htlc_id'] = htlc_event.outgoing_htlc_id
+
+                elif htlc_event.HasField('forward_fail_event'):
+                    event_data['event_type'] = 'forward_fail'
+                    event_data['incoming_channel_id'] = htlc_event.incoming_channel_id
+                    event_data['outgoing_channel_id'] = htlc_event.outgoing_channel_id
+                    event_data['incoming_htlc_id'] = htlc_event.incoming_htlc_id
+                    event_data['outgoing_htlc_id'] = htlc_event.outgoing_htlc_id
+
+                elif htlc_event.HasField('settle_event'):
+                    event_data['event_type'] = 'settle'
+
+                elif htlc_event.HasField('link_fail_event'):
+                    event_data['event_type'] = 'link_fail'
+                    link_fail = htlc_event.link_fail_event
+                    event_data['failure_string'] = link_fail.failure_string
+                    event_data['failure_source_index'] = link_fail.failure_source_index
+                    event_data['incoming_channel_id'] = htlc_event.incoming_channel_id
+                    event_data['outgoing_channel_id'] = htlc_event.outgoing_channel_id
+
+                yield event_data
+
+        except grpc.RpcError as e:
+            logger.error(f"HTLC subscription error: {e}")
+            raise
+
     def update_channel_policy(self,
                             chan_point: str,
                             base_fee_msat: int = None,
@@ -291,7 +390,7 @@ class LNDgRPCClient:
                             inbound_base_fee_msat: int = None) -> Dict[str, Any]:
         """
         SECURE: Update channel policy via gRPC - ONLY FEE MANAGEMENT
-        
+
         This is the core function that actually changes fees!
         SECURITY: This method ONLY changes channel fees - NO fund movement!
         """
@@ -433,6 +532,36 @@ class AsyncLNDgRPCClient:
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, self.sync_client.list_channels)
     
+    async def get_forwarding_history(self, *args, **kwargs):
+        """Async version of get_forwarding_history"""
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None, lambda: self.sync_client.get_forwarding_history(*args, **kwargs)
+        )
+
+    async def subscribe_htlc_events(self):
+        """
+        Async generator for HTLC events
+
+        Yields HTLC event dicts as they occur
+        """
+        loop = asyncio.get_event_loop()
+
+        # Run the blocking generator in executor and yield results
+        def get_next_event(iterator):
+            try:
+                return next(iterator)
+            except StopIteration:
+                return None
+
+        iterator = self.sync_client.subscribe_htlc_events()
+
+        while True:
+            event = await loop.run_in_executor(None, get_next_event, iterator)
+            if event is None:
+                break
+            yield event
+
     async def update_channel_policy(self, *args, **kwargs):
         """Async version of update_channel_policy with enhanced logging"""
         logger.debug(
@@ -440,17 +569,17 @@ class AsyncLNDgRPCClient:
             f"  Args: {args}\n"
             f"  Kwargs: {kwargs}"
         )
-        
+
         try:
             loop = asyncio.get_event_loop()
             # Fix: Use lambda to properly pass kwargs to run_in_executor
             result = await loop.run_in_executor(
                 None, lambda: self.sync_client.update_channel_policy(*args, **kwargs)
             )
-            
+
             logger.debug(f"gRPC update_channel_policy succeeded: {result}")
             return result
-            
+
         except Exception as e:
             logger.error(
                 f"gRPC update_channel_policy failed:\n"
