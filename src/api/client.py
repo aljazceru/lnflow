@@ -11,13 +11,18 @@ logger = logging.getLogger(__name__)
 
 class LndManageClient:
     """Client for interacting with LND Manage API"""
-    
-    def __init__(self, base_url: str = "http://localhost:18081"):
+
+    def __init__(self, base_url: str = "http://localhost:18081", max_concurrent: int = 10):
         self.base_url = base_url.rstrip('/')
         self.client: Optional[httpx.AsyncClient] = None
+        self.max_concurrent = max_concurrent
+        self._semaphore: Optional[asyncio.Semaphore] = None
     
     async def __aenter__(self):
-        self.client = httpx.AsyncClient(timeout=30.0)
+        # Use connection pooling with limits
+        limits = httpx.Limits(max_connections=50, max_keepalive_connections=20)
+        self.client = httpx.AsyncClient(timeout=30.0, limits=limits)
+        self._semaphore = asyncio.Semaphore(self.max_concurrent)
         return self
     
     async def __aexit__(self, exc_type, exc_val, exc_tb):
@@ -138,7 +143,7 @@ class LndManageClient:
         return await self._get(f"/api/node/{pubkey}/warnings")
     
     async def fetch_all_channel_data(self, channel_ids: Optional[List[str]] = None) -> List[Dict[str, Any]]:
-        """Fetch comprehensive data for all channels using the /details endpoint"""
+        """Fetch comprehensive data for all channels using the /details endpoint with concurrency limiting"""
         if channel_ids is None:
             # Get channel IDs from the API response
             response = await self.get_open_channels()
@@ -146,16 +151,16 @@ class LndManageClient:
                 channel_ids = response['channels']
             else:
                 channel_ids = response if isinstance(response, list) else []
-        
-        logger.info(f"Fetching data for {len(channel_ids)} channels")
-        
-        # Fetch data for all channels concurrently
+
+        logger.info(f"Fetching data for {len(channel_ids)} channels (max {self.max_concurrent} concurrent)")
+
+        # Fetch data for all channels concurrently with semaphore limiting
         tasks = []
         for channel_id in channel_ids:
-            tasks.append(self._fetch_single_channel_data(channel_id))
-        
+            tasks.append(self._fetch_single_channel_data_limited(channel_id))
+
         results = await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         # Filter out failed requests
         channel_data = []
         for i, result in enumerate(results):
@@ -163,8 +168,18 @@ class LndManageClient:
                 logger.error(f"Failed to fetch data for channel {channel_ids[i]}: {result}")
             else:
                 channel_data.append(result)
-        
+
+        logger.info(f"Successfully fetched data for {len(channel_data)}/{len(channel_ids)} channels")
         return channel_data
+
+    async def _fetch_single_channel_data_limited(self, channel_id: str) -> Dict[str, Any]:
+        """Fetch channel data with semaphore limiting to prevent overwhelming the API"""
+        if self._semaphore is None:
+            # Fallback if semaphore not initialized (shouldn't happen in normal use)
+            return await self._fetch_single_channel_data(channel_id)
+
+        async with self._semaphore:
+            return await self._fetch_single_channel_data(channel_id)
     
     async def _fetch_single_channel_data(self, channel_id: str) -> Dict[str, Any]:
         """Fetch all data for a single channel using the details endpoint"""
