@@ -1,14 +1,21 @@
 """Routing Opportunity Analyzer - Identify and quantify missed routing opportunities"""
 
 import logging
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
+from datetime import datetime, timedelta, timezone
+from typing import Dict, List, Optional, Tuple, Protocol
 from dataclasses import dataclass
 from collections import defaultdict
 
 from .htlc_monitor import HTLCMonitor, ChannelFailureStats, FailureReason
 
 logger = logging.getLogger(__name__)
+
+
+class LNDManageClient(Protocol):
+    """Protocol for LND Manage API client"""
+    async def get_channel_details(self, channel_id: str) -> Dict:
+        """Get channel details"""
+        ...
 
 
 @dataclass
@@ -57,7 +64,7 @@ class OpportunityAnalyzer:
 
     def __init__(self,
                  htlc_monitor: HTLCMonitor,
-                 lnd_manage_client=None,
+                 lnd_manage_client: Optional[LNDManageClient] = None,
                  min_opportunity_sats: int = 100,
                  analysis_window_hours: int = 24):
         """
@@ -114,7 +121,7 @@ class OpportunityAnalyzer:
             opportunity.missed_volume_sats = stats.total_missed_amount_msat / 1000
 
             # Calculate potential monthly revenue (extrapolate from current period)
-            hours_monitored = (datetime.utcnow() - stats.first_seen).total_seconds() / 3600
+            hours_monitored = (datetime.now(timezone.utc) - stats.first_seen).total_seconds() / 3600
             if hours_monitored > 0:
                 hours_in_month = 24 * 30
                 opportunity.potential_monthly_revenue_sats = (
@@ -321,7 +328,7 @@ class OpportunityAnalyzer:
     async def export_opportunities_json(self, opportunities: List[MissedOpportunity]) -> Dict:
         """Export opportunities as JSON-serializable dict"""
         return {
-            'analysis_timestamp': datetime.utcnow().isoformat(),
+            'analysis_timestamp': datetime.now(timezone.utc).isoformat(),
             'analysis_window_hours': self.analysis_window_hours,
             'total_opportunities': len(opportunities),
             'total_missed_revenue_sats': sum(o.missed_revenue_sats for o in opportunities),

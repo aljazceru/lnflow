@@ -2,13 +2,20 @@
 
 import asyncio
 import logging
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Set, Callable
+from datetime import datetime, timedelta, timezone
+from typing import Dict, List, Optional, Set, Callable, Protocol
 from dataclasses import dataclass, field
 from enum import Enum
 from collections import defaultdict, deque
 
 logger = logging.getLogger(__name__)
+
+
+class GRPCClient(Protocol):
+    """Protocol for gRPC client with HTLC support"""
+    async def subscribe_htlc_events(self):
+        """Subscribe to HTLC events"""
+        ...
 
 
 class HTLCEventType(Enum):
@@ -68,7 +75,7 @@ class ChannelFailureStats:
     total_missed_amount_msat: int = 0
     total_missed_fees_msat: int = 0
     recent_failures: deque = field(default_factory=lambda: deque(maxlen=100))
-    first_seen: datetime = field(default_factory=datetime.utcnow)
+    first_seen: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     last_failure: Optional[datetime] = None
 
     @property
@@ -93,10 +100,11 @@ class HTLCMonitor:
     """Monitor HTLC events and detect missed routing opportunities"""
 
     def __init__(self,
-                 grpc_client=None,
+                 grpc_client: Optional[GRPCClient] = None,
                  history_hours: int = 24,
                  min_failure_count: int = 3,
-                 min_missed_sats: int = 100):
+                 min_missed_sats: int = 100,
+                 max_channels: int = 10000):
         """
         Initialize HTLC monitor
 
@@ -105,15 +113,17 @@ class HTLCMonitor:
             history_hours: How many hours of history to keep
             min_failure_count: Minimum failures to flag as opportunity
             min_missed_sats: Minimum missed sats to flag as opportunity
+            max_channels: Maximum channels to track (prevents unbounded growth)
         """
         self.grpc_client = grpc_client
         self.history_hours = history_hours
         self.min_failure_count = min_failure_count
         self.min_missed_sats = min_missed_sats
+        self.max_channels = max_channels
 
         # Event storage
         self.events: deque = deque(maxlen=10000)  # Last 10k events
-        self.channel_stats: Dict[str, ChannelFailureStats] = defaultdict(ChannelFailureStats)
+        self.channel_stats: Dict[str, ChannelFailureStats] = {}
 
         # Monitoring state
         self.monitoring = False
@@ -121,12 +131,23 @@ class HTLCMonitor:
         self.callbacks: List[Callable[[HTLCEvent], None]] = []
 
         logger.info(f"HTLC Monitor initialized (history: {history_hours}h, "
-                   f"min failures: {min_failure_count}, min sats: {min_missed_sats})")
+                   f"min failures: {min_failure_count}, min sats: {min_missed_sats}, "
+                   f"max channels: {max_channels})")
 
     def register_callback(self, callback: Callable[[HTLCEvent], None]):
         """Register a callback to be called on each HTLC event"""
         self.callbacks.append(callback)
         logger.debug(f"Registered callback: {callback.__name__}")
+
+    async def __aenter__(self):
+        """Async context manager entry - starts monitoring"""
+        await self.start_monitoring()
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        """Async context manager exit - stops monitoring"""
+        await self.stop_monitoring()
+        return False
 
     async def start_monitoring(self):
         """Start monitoring HTLC events"""
@@ -224,7 +245,7 @@ class HTLCMonitor:
                     failure_reason = FailureReason.UNKNOWN
 
             return HTLCEvent(
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 event_type=event_type,
                 incoming_channel_id=event_data.get('incoming_channel_id'),
                 outgoing_channel_id=event_data.get('outgoing_channel_id'),
@@ -250,6 +271,16 @@ class HTLCMonitor:
             channel_id = event.outgoing_channel_id
 
             if channel_id not in self.channel_stats:
+                # Prevent unbounded memory growth
+                if len(self.channel_stats) >= self.max_channels:
+                    # Remove least active channel
+                    oldest_channel = min(
+                        self.channel_stats.items(),
+                        key=lambda x: x[1].last_failure or x[1].first_seen
+                    )
+                    logger.info(f"Removing inactive channel {oldest_channel[0]} (at max_channels limit)")
+                    del self.channel_stats[oldest_channel[0]]
+
                 self.channel_stats[channel_id] = ChannelFailureStats(channel_id=channel_id)
 
             stats = self.channel_stats[channel_id]
@@ -343,16 +374,21 @@ class HTLCMonitor:
 
     def cleanup_old_data(self):
         """Remove data older than history_hours"""
-        cutoff = datetime.utcnow() - timedelta(hours=self.history_hours)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=self.history_hours)
 
         # Clean old events
         while self.events and self.events[0].timestamp < cutoff:
             self.events.popleft()
 
-        # Clean old channel stats
+        # Clean old channel stats (inactive channels)
+        channels_removed = 0
         for channel_id in list(self.channel_stats.keys()):
             stats = self.channel_stats[channel_id]
+            # Remove if no activity in the history window
             if stats.last_failure and stats.last_failure < cutoff:
                 del self.channel_stats[channel_id]
+                channels_removed += 1
 
-        logger.debug(f"Cleaned up old HTLC data (cutoff: {cutoff})")
+        if channels_removed > 0:
+            logger.info(f"Cleaned up {channels_removed} inactive channels (cutoff: {cutoff})")
+        logger.debug(f"Active channels: {len(self.channel_stats)}")
