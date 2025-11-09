@@ -14,22 +14,37 @@ class OptimizationConfig:
     # Fee rate limits (ppm)
     min_fee_rate: int = 1
     max_fee_rate: int = 5000
-    
+
     # Flow thresholds (sats)
     high_flow_threshold: int = 10_000_000
     low_flow_threshold: int = 1_000_000
-    
+
     # Balance thresholds (ratio)
     high_balance_threshold: float = 0.8
     low_balance_threshold: float = 0.2
-    
+
     # Strategy parameters
     fee_increase_factor: float = 1.5
     flow_preservation_weight: float = 0.6
-    
+
     # Minimum changes to recommend
     min_fee_change_ppm: int = 5
     min_earnings_improvement: float = 100  # sats
+
+    # Performance metric thresholds for scoring
+    excellent_monthly_profit_sats: int = 10_000  # 10k sats/month
+    excellent_monthly_flow_sats: int = 10_000_000  # 10M sats/month
+    excellent_earnings_per_million_ppm: int = 1000  # 1000 ppm
+    excellent_roi_ratio: float = 2.0  # 200% ROI
+
+    # Channel categorization thresholds
+    high_performance_score: float = 70.0
+    min_profitable_sats: int = 100
+    min_active_flow_sats: int = 1_000_000
+
+    # Capacity tier thresholds (sats)
+    high_capacity_threshold: int = 5_000_000
+    medium_capacity_threshold: int = 1_000_000
 
 
 @dataclass 

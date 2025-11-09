@@ -17,16 +17,18 @@ logger = logging.getLogger(__name__)
 
 class PolicyManager:
     """Manages policy-based fee optimization with inbound fee support"""
-    
-    def __init__(self, 
+
+    def __init__(self,
                  config_file: str,
                  lnd_manage_url: str,
                  lnd_rest_url: str = "https://localhost:8080",
                  lnd_grpc_host: str = "localhost:10009",
                  lnd_dir: str = "~/.lnd",
                  database_path: str = "experiment_data/policy.db",
-                 prefer_grpc: bool = True):
-        
+                 prefer_grpc: bool = True,
+                 max_history_entries: int = 1000,
+                 history_ttl_hours: int = 168):  # 7 days default
+
         self.policy_engine = PolicyEngine(config_file)
         self.lnd_manage_url = lnd_manage_url
         self.lnd_rest_url = lnd_rest_url
@@ -34,13 +36,16 @@ class PolicyManager:
         self.lnd_dir = lnd_dir
         self.prefer_grpc = prefer_grpc
         self.db = ExperimentDatabase(database_path)
-        
-        # Policy-specific tracking
+
+        # Policy-specific tracking with memory management
         self.policy_session_id = None
         self.last_fee_changes: Dict[str, Dict] = {}
         self.rollback_candidates: Dict[str, datetime] = {}
-        
+        self.max_history_entries = max_history_entries
+        self.history_ttl_hours = history_ttl_hours
+
         logger.info(f"Policy manager initialized with {len(self.policy_engine.rules)} rules")
+        logger.info(f"Memory management: max {max_history_entries} entries, TTL {history_ttl_hours}h")
     
     async def start_policy_session(self, session_name: str = None) -> int:
         """Start a new policy management session"""
@@ -239,8 +244,56 @@ class PolicyManager:
             if len(results['errors']) > 5:
                 logger.warning(f"  ... and {len(results['errors']) - 5} more errors")
         
+        # Cleanup old entries to prevent memory growth
+        self._cleanup_old_entries()
+
         return results
-    
+
+    def _cleanup_old_entries(self) -> None:
+        """Clean up old entries from tracking dictionaries to prevent unbounded memory growth"""
+        cutoff_time = datetime.utcnow() - timedelta(hours=self.history_ttl_hours)
+        initial_count = len(self.last_fee_changes)
+
+        # Remove entries older than TTL
+        expired_channels = []
+        for channel_id, change_info in self.last_fee_changes.items():
+            if change_info['timestamp'] < cutoff_time:
+                expired_channels.append(channel_id)
+
+        for channel_id in expired_channels:
+            del self.last_fee_changes[channel_id]
+
+        # If still over limit, remove oldest entries
+        if len(self.last_fee_changes) > self.max_history_entries:
+            # Sort by timestamp and keep only the most recent max_history_entries
+            sorted_changes = sorted(
+                self.last_fee_changes.items(),
+                key=lambda x: x[1]['timestamp'],
+                reverse=True
+            )
+            self.last_fee_changes = dict(sorted_changes[:self.max_history_entries])
+
+        # Cleanup rollback_candidates with similar logic
+        expired_candidates = [
+            cid for cid, ts in self.rollback_candidates.items()
+            if ts < cutoff_time
+        ]
+        for channel_id in expired_candidates:
+            del self.rollback_candidates[channel_id]
+
+        if len(self.rollback_candidates) > self.max_history_entries:
+            sorted_candidates = sorted(
+                self.rollback_candidates.items(),
+                key=lambda x: x[1],
+                reverse=True
+            )
+            self.rollback_candidates = dict(sorted_candidates[:self.max_history_entries])
+
+        cleaned_count = initial_count - len(self.last_fee_changes)
+        if cleaned_count > 0:
+            logger.info(f"Cleaned up {cleaned_count} old entries from memory "
+                       f"({len(self.last_fee_changes)} remaining)")
+
     async def _enrich_channel_data(self, channel_info: Dict[str, Any], 
                                  lnd_manage: LndManageClient) -> Dict[str, Any]:
         """Enrich channel data with additional metrics for policy matching"""

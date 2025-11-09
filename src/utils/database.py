@@ -140,13 +140,21 @@ class ExperimentDatabase:
                 )
             """)
             
-            # Create useful indexes
+            # Create useful indexes for performance optimization
             conn.execute("CREATE INDEX IF NOT EXISTS idx_data_points_channel_time ON data_points(channel_id, timestamp)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_data_points_parameter_set ON data_points(parameter_set, timestamp)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_fee_changes_channel_time ON fee_changes(channel_id, timestamp)")
-            
+
+            # Additional indexes for improved query performance
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_data_points_experiment_id ON data_points(experiment_id)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_data_points_experiment_channel ON data_points(experiment_id, channel_id)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_data_points_phase ON data_points(phase, timestamp)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_channels_experiment ON channels(experiment_id)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_channels_segment ON channels(segment)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_fee_changes_experiment ON fee_changes(experiment_id)")
+
             conn.commit()
-            logger.info("Database initialized successfully")
+            logger.info("Database initialized successfully with optimized indexes")
     
     @contextmanager
     def _get_connection(self):
